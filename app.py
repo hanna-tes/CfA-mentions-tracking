@@ -7,7 +7,7 @@ from urllib.parse import urlparse, parse_qs
 
 # --- Configuration for Google Sheets ---
 # Name of your Google Sheet
-SHEET_NAME = "My_Mentions_Data"  
+SHEET_NAME = "CfA_mentions_tracker"  
 # Name of the worksheet you want to read from
 WORKSHEET_NAME = "Sheet1"  
 
