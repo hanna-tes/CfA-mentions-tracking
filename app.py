@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-import io
 import gspread
 from urllib.parse import urlparse, parse_qs
 
@@ -153,46 +152,16 @@ def display_dashboard(df_combined):
     plt.tight_layout()
     st.pyplot(fig)
 
-
 def main():
     st.set_page_config(layout="wide", page_title="Code for Africa's Work Mentions Tracking Dashboard")
     st.title("Code for Africa's Work Mentions Tracking Dashboard")
-    st.sidebar.header("Data Source")
-    data_source_option = st.sidebar.radio(
-        "Choose your data source:",
-        ("Upload Your Own Dataset", "Link to Google Sheet")
-    )
-    st.sidebar.markdown("---")
-
-    if data_source_option == "Upload Your Own Dataset":
-        st.sidebar.info("Upload one or more CSV files from your local machine.")
-        uploaded_files = st.file_uploader(
-            "Choose one or more CSV files",
-            type="csv",
-            accept_multiple_files=True
-        )
-
-        if uploaded_files:
-            all_dfs = []
-            for file in uploaded_files:
-                try:
-                    df = pd.read_csv(io.StringIO(file.getvalue().decode('utf-8')))
-                    all_dfs.append(df)
-                except Exception as e:
-                    st.error(f"Error reading {file.name}: {e}")
-                    return
-            df_combined = pd.concat(all_dfs, ignore_index=True)
-            display_dashboard(df_combined)
-        else:
-            st.info("Please upload CSV files to view the dashboard.")
-
-    elif data_source_option == "Link to Google Sheet":
-        st.sidebar.info("Loading data directly from your Google Sheet.")
-        df = load_data_from_google_sheet()
-        if df is not None:
-            display_dashboard(df)
-        else:
-            st.warning("Data could not be loaded from Google Sheet. Please check the credentials and sheet info.")
+    
+    st.sidebar.info("Loading data directly from your Google Sheet.")
+    df = load_data_from_google_sheet()
+    if df is not None:
+        display_dashboard(df)
+    else:
+        st.warning("Data could not be loaded from Google Sheet. Please check the credentials and sheet info.")
 
 if __name__ == "__main__":
     main()
