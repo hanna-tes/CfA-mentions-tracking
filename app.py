@@ -4,7 +4,7 @@ import streamlit as st
 import io
 
 # URL for the default dataset (replace with your actual GitHub raw link)
-DEFAULT_DATA_URL = "https://raw.githubusercontent.com/username/repository/main/news_items.csv"
+DEFAULT_DATA_URL = "https://raw.githubusercontent.com/hanna-tes/CfA-mentions-tracking/refs/heads/main/news_items%20(1).csv"
 
 def display_dashboard(df_combined):
     """
