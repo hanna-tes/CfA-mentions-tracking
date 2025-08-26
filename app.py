@@ -12,7 +12,7 @@ def display_dashboard(df_combined):
     """
     # Clean the column names for easier access
     df_combined.columns = [col.strip().lower() for col in df_combined.columns]
-    
+
     # Convert 'daily_update' to datetime format
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
 
@@ -32,17 +32,18 @@ def display_dashboard(df_combined):
     with col2:
         st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source. 🏆")
 
-    # --- Top 4 Mentions in Table Format ---
+    # --- Raw Data and Details Section (now in a prominent table) ---
     st.markdown("---")
-    st.subheader("Top 4 Recent Mentions")
-    df_sorted = df_combined.sort_values(by='daily_update', ascending=False)
-    # Displaying the top 4 rows in a table
-    st.dataframe(df_sorted[['daily_update', 'source', 'title', 'snippet']].head(4).rename(columns={
+    st.markdown("<h2 style='text-align: center;'>📄 All Mentions Details</h2>", unsafe_allow_html=True)
+    st.markdown("---")
+    # Display all mentions in an interactive table
+    st.dataframe(df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
         'daily_update': 'Date',
         'source': 'Source',
         'title': 'Title',
-        'snippet': 'Snippet'
-    }))
+        'snippet': 'Snippet',
+        'url': 'URL'
+    }), height=400)
 
     # --- Visualizations Section ---
     st.markdown("---")
@@ -50,7 +51,7 @@ def display_dashboard(df_combined):
     st.markdown("---")
 
     chart_col1, chart_col2 = st.columns(2)
-    
+
     # Use a modern matplotlib style for a cleaner look
     plt.style.use('ggplot')
 
@@ -77,19 +78,6 @@ def display_dashboard(df_combined):
         plt.tight_layout()
         st.pyplot(fig)
 
-    # --- Raw Data and Details Section (now in a table) ---
-    st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'>📄 All Mentions Details</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    # Display all mentions in an interactive table
-    st.dataframe(df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
-        'daily_update': 'Date',
-        'source': 'Source',
-        'title': 'Title',
-        'snippet': 'Snippet',
-        'url': 'URL'
-    }), height=400)
-
 def main():
     st.set_page_config(layout="wide")
     st.title("Code for Africa Mentions Dashboard")
@@ -100,9 +88,9 @@ def main():
         "Choose your data source:",
         ("Use Default Data", "Upload Your Own Dataset")
     )
-    
+
     st.sidebar.markdown("---")
-    
+
     if data_source_option == "Use Default Data":
         st.sidebar.info("Using a default dataset from a GitHub repository.")
         st.sidebar.markdown(f"[Raw Data Link]({DEFAULT_DATA_URL})")
