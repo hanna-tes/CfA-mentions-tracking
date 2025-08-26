@@ -7,6 +7,29 @@ import io
 # URL for the default dataset (replace with your actual GitHub raw link)
 DEFAULT_DATA_URL = "https://raw.githubusercontent.com/hanna-tes/CfA-mentions-tracking/refs/heads/main/news_items%20(1).csv"
 
+def get_clean_url(google_url):
+    """Extracts the clean URL from a Google redirect link."""
+    try:
+        parsed_url = urlparse(google_url)
+        query_params = parse_qs(parsed_url.query)
+        # The clean URL is typically in the 'url' query parameter
+        return query_params['url'][0]
+    except (KeyError, IndexError):
+        return google_url
+
+def categorize_source(source_name):
+    """Categorizes a source based on its name."""
+    source_name_lower = source_name.lower()
+    if 'yahoo' in source_name_lower or 'reuters' in source_name_lower or 'afp' in source_name_lower:
+        return 'News Outlet'
+    elif 'pressreader' in source_name_lower:
+        return 'Digital Paper/Magazine'
+    elif 'twitter' in source_name_lower or 'facebook' in source_name_lower:
+        return 'Social Media'
+    # Add more categories as needed
+    else:
+        return 'Other'
+
 def display_dashboard(df_combined):
     """
     Displays the dashboard with a more visually appealing design.
@@ -110,6 +133,7 @@ def display_dashboard(df_combined):
     ax.tick_params(colors='white')
     plt.tight_layout()
     st.pyplot(fig)
+
 
 def main():
     st.set_page_config(layout="wide", page_title="Code for Africa's Work Mentions Tracking Dashboard")
