@@ -6,12 +6,25 @@ import io
 # URL for the default dataset (replace with your actual GitHub raw link)
 DEFAULT_DATA_URL = "https://raw.githubusercontent.com/hanna-tes/CfA-mentions-tracking/refs/heads/main/news_items%20(1).csv"
 
+def get_clean_url(google_url):
+    """Extracts the clean URL from a Google redirect link."""
+    try:
+        parsed_url = urlparse(google_url)
+        query_params = parse_qs(parsed_url.query)
+        # The clean URL is typically in the 'url' query parameter
+        return query_params['url'][0]
+    except (KeyError, IndexError):
+        return google_url # Return original URL if extraction fails
+
 def display_dashboard(df_combined):
     """
     Displays the dashboard with a more visually appealing design.
     """
     # Clean the column names for easier access
     df_combined.columns = [col.strip().lower() for col in df_combined.columns]
+
+    # Extract clean URLs from the Google redirect links
+    df_combined['url'] = df_combined['url'].apply(get_clean_url)
 
     # Convert 'daily_update' to datetime format
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
@@ -34,25 +47,28 @@ def display_dashboard(df_combined):
     with col2:
         st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
 
-    # --- All Mentions Details Section ---
+    # --- All Mentions Details Section (now in a prominent table) ---
     st.markdown("""
         <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px; margin-top: 30px;">
             <h2 style="color: #5D8AA8;">All Mentions Details</h2>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Create a new DataFrame with a clickable URL column
-    df_display = df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].copy()
-    df_display['url'] = df_display['url'].apply(lambda x: f"[{x}]({x})")
-    
-    # Display the DataFrame with the clickable links
-    st.dataframe(df_display.rename(columns={
-        'daily_update': 'Date',
-        'source': 'Source',
-        'title': 'Title',
-        'snippet': 'Snippet',
-        'url': 'URL'
-    }), height=400)
+
+    # Display all mentions in an interactive table with clickable links
+    st.data_editor(
+        df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
+            'daily_update': 'Date',
+            'source': 'Source',
+            'title': 'Title',
+            'snippet': 'Snippet',
+            'url': 'URL'
+        }),
+        disabled=True,
+        height=400,
+        column_config={
+            "URL": st.column_config.LinkColumn("URL")
+        }
+    )
 
     # --- Visualizations Section ---
     st.markdown("---")
@@ -87,6 +103,7 @@ def display_dashboard(df_combined):
     plt.tight_layout()
     st.pyplot(fig)
 
+
 def main():
     st.set_page_config(layout="wide", page_title="Code for Africa's Work Mentions Tracking Dashboard")
     st.title("Code for Africa's Work Mentions Tracking Dashboard")
@@ -95,6 +112,7 @@ def main():
         "Choose your data source:",
         ("Use Default Data", "Upload Your Own Dataset")
     )
+
     st.sidebar.markdown("---")
 
     if data_source_option == "Use Default Data":
