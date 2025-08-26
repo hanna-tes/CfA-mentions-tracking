@@ -18,7 +18,7 @@ def display_dashboard(df_combined):
 
     # --- High-Level Overview Section ---
     st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'>🌟 Dashboard Overview 🌟</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>🌟 Data Overview 🌟</h2>", unsafe_allow_html=True)
     st.markdown("---")
 
     total_mentions = len(df_combined)
@@ -28,9 +28,9 @@ def display_dashboard(df_combined):
     # Use columns with Streamlit's built-in alert boxes for a better look
     col1, col2 = st.columns(2)
     with col1:
-        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded! 🎉")
+        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded")
     with col2:
-        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source. 🏆")
+        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
 
     # --- Raw Data and Details Section (now in a prominent table) ---
     st.markdown("---")
