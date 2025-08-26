@@ -1,6 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+import io
+
+# URL for the default dataset (replace with your actual GitHub raw link)
+DEFAULT_DATA_URL = "https://raw.githubusercontent.com/username/repository/main/news_items.csv"
 
 def create_dashboard():
     # Set Streamlit page configuration for a wider layout
@@ -8,29 +12,48 @@ def create_dashboard():
 
     st.title("Code for Africa Mentions Dashboard")
 
-    st.markdown("### Upload Your CSV Files")
-    uploaded_files = st.file_uploader(
-        "Choose one or more CSV files",
-        type="csv",
-        accept_multiple_files=True
+    # --- Data Selection Section ---
+    st.sidebar.header("Data Source")
+    data_source_option = st.sidebar.radio(
+        "Choose your data source:",
+        ("Use Default Data", "Upload Your Own Dataset")
     )
 
-    if uploaded_files:
-        # Create an empty list to store dataframes
-        all_dfs = []
+    df_combined = pd.DataFrame()
 
-        # Read each uploaded file and append its data to the list
+    if data_source_option == "Use Default Data":
+        st.info("Using a default dataset from a GitHub repository.")
+        st.markdown(f"[Raw Data Link]({DEFAULT_DATA_URL})")
+        try:
+            df = pd.read_csv(DEFAULT_DATA_URL)
+            df_combined = df
+        except Exception as e:
+            st.error(f"Error loading default data: {e}")
+            return
+    else:
+        st.markdown("### Upload Your CSV Files")
+        uploaded_files = st.file_uploader(
+            "Choose one or more CSV files",
+            type="csv",
+            accept_multiple_files=True
+        )
+
+        if not uploaded_files:
+            st.info("Please upload CSV files to view the dashboard.")
+            return
+
+        all_dfs = []
         for file in uploaded_files:
             try:
-                df = pd.read_csv(file)
+                # Use io.StringIO to read the file in memory
+                df = pd.read_csv(io.StringIO(file.getvalue().decode('utf-8')))
                 all_dfs.append(df)
             except Exception as e:
                 st.error(f"Error reading {file.name}: {e}")
                 return
-
-        # Combine all dataframes into a single dataframe
         df_combined = pd.concat(all_dfs, ignore_index=True)
 
+    if not df_combined.empty:
         # Clean the column names for easier access
         df_combined.columns = [col.strip().lower() for col in df_combined.columns]
 
@@ -103,9 +126,6 @@ def create_dashboard():
                 st.markdown(f"**Title:** [{row['title']}]({row['url']})")
                 st.markdown(f"**Snippet:** _{row['snippet']}_")
                 st.markdown("---")  # Add a separator
-
-    else:
-        st.info("Please upload CSV files to view the dashboard.")
 
 if __name__ == "__main__":
     create_dashboard()
