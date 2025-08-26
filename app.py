@@ -28,7 +28,6 @@ def display_dashboard(df_combined):
     mentions_by_source = df_combined['source'].value_counts()
     top_source = mentions_by_source.index[0] if not mentions_by_source.empty else "N/A"
 
-    # Use columns with Streamlit's built-in alert boxes for a better look
     col1, col2 = st.columns(2)
     with col1:
         st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded!")
@@ -41,9 +40,13 @@ def display_dashboard(df_combined):
             <h2 style="color: #5D8AA8;">All Mentions Details</h2>
         </div>
     """, unsafe_allow_html=True)
-
-    # Display all mentions in an interactive table
-    st.dataframe(df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
+    
+    # Create a new DataFrame with a clickable URL column
+    df_display = df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].copy()
+    df_display['url'] = df_display['url'].apply(lambda x: f"[{x}]({x})")
+    
+    # Display the DataFrame with the clickable links
+    st.dataframe(df_display.rename(columns={
         'daily_update': 'Date',
         'source': 'Source',
         'title': 'Title',
@@ -59,46 +62,39 @@ def display_dashboard(df_combined):
         </div>
     """, unsafe_allow_html=True)
 
-    # Use a dark background style for a more visually striking look
     plt.style.use('dark_background')
 
-    # Display Mentions by Source plot
     st.subheader("Mentions by Source")
     fig, ax = plt.subplots(figsize=(10, 6))
     mentions_by_source.plot(kind='bar', color=plt.cm.Paired.colors, ax=ax)
     ax.set_title('Mentions by Source', fontsize=16, color='white')
     ax.set_xlabel('Source', fontsize=12, color='white')
     ax.set_ylabel('Number of Mentions', fontsize=12, color='white')
-    ax.tick_params(colors='white') # Set tick colors to white for visibility
+    ax.tick_params(colors='white')
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Display Mentions Over Time plot
     st.subheader("Mentions Over Time")
     mentions_over_time = df_combined.groupby('daily_update').size()
     fig, ax = plt.subplots(figsize=(10, 6))
-    mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#5D8AA8', ax=ax) # Using a smooth blue for contrast
+    mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#5D8AA8', ax=ax)
     ax.set_title('Mentions Over Time', fontsize=16, color='white')
     ax.set_xlabel('Date', fontsize=12, color='white')
     ax.set_ylabel('Number of Mentions', fontsize=12, color='white')
     ax.grid(True, linestyle='--', alpha=0.6, color='gray')
-    ax.tick_params(colors='white') # Set tick colors to white
+    ax.tick_params(colors='white')
     plt.tight_layout()
     st.pyplot(fig)
 
-
 def main():
-    st.set_page_config(layout="wide")
+    st.set_page_config(layout="wide", page_title="Code for Africa's Work Mentions Tracking Dashboard")
     st.title("Code for Africa's Work Mentions Tracking Dashboard")
-
-    # --- Data Source Selection ---
     st.sidebar.header("Data Source")
     data_source_option = st.sidebar.radio(
         "Choose your data source:",
         ("Use Default Data", "Upload Your Own Dataset")
     )
-
     st.sidebar.markdown("---")
 
     if data_source_option == "Use Default Data":
