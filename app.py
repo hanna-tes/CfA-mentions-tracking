@@ -18,7 +18,7 @@ def display_dashboard(df_combined):
 
     # --- High-Level Overview Section ---
     st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'>🌟 Data Overview 🌟</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>🌟 Dashboard Overview 🌟</h2>", unsafe_allow_html=True)
     st.markdown("---")
 
     total_mentions = len(df_combined)
@@ -28,9 +28,9 @@ def display_dashboard(df_combined):
     # Use columns with Streamlit's built-in alert boxes for a better look
     col1, col2 = st.columns(2)
     with col1:
-        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded")
+        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded! 🎉")
     with col2:
-        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
+        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source. 🏆")
 
     # --- Raw Data and Details Section (now in a prominent table) ---
     st.markdown("---")
@@ -47,36 +47,33 @@ def display_dashboard(df_combined):
 
     # --- Visualizations Section ---
     st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'>📊 Data Visualizations</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-
-    chart_col1, chart_col2 = st.columns(2)
 
     # Use a modern matplotlib style for a cleaner look
     plt.style.use('ggplot')
 
-    with chart_col1:
-        st.subheader("Mentions by Source")
-        fig, ax = plt.subplots(figsize=(8, 5))
-        mentions_by_source.plot(kind='bar', color=plt.cm.Paired.colors, ax=ax)
-        ax.set_title('Mentions by Source', fontsize=16)
-        ax.set_xlabel('Source', fontsize=12)
-        ax.set_ylabel('Number of Mentions', fontsize=12)
-        plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
-        st.pyplot(fig)
+    # Display Mentions by Source plot
+    st.subheader("Mentions by Source")
+    fig, ax = plt.subplots(figsize=(10, 6)) # Adjusted figsize for better vertical display
+    mentions_by_source.plot(kind='bar', color=plt.cm.Paired.colors, ax=ax)
+    ax.set_title('Mentions by Source', fontsize=16)
+    ax.set_xlabel('Source', fontsize=12)
+    ax.set_ylabel('Number of Mentions', fontsize=12)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    # Display Mentions Over Time plot
+    st.subheader("Mentions Over Time")
+    mentions_over_time = df_combined.groupby('daily_update').size()
+    fig, ax = plt.subplots(figsize=(10, 6)) # Adjusted figsize for better vertical display
+    mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#4B0082', ax=ax)
+    ax.set_title('Mentions Over Time', fontsize=16)
+    ax.set_xlabel('Date', fontsize=12)
+    ax.set_ylabel('Number of Mentions', fontsize=12)
+    ax.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-    with chart_col2:
-        st.subheader("Mentions Over Time")
-        mentions_over_time = df_combined.groupby('daily_update').size()
-        fig, ax = plt.subplots(figsize=(8, 5))
-        mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#4B0082', ax=ax)
-        ax.set_title('Mentions Over Time', fontsize=16)
-        ax.set_xlabel('Date', fontsize=12)
-        ax.set_ylabel('Number of Mentions', fontsize=12)
-        ax.grid(True, linestyle='--', alpha=0.6)
-        plt.tight_layout()
-        st.pyplot(fig)
 
 def main():
     st.set_page_config(layout="wide")
