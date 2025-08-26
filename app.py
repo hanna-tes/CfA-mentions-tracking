@@ -17,9 +17,11 @@ def display_dashboard(df_combined):
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
 
     # --- High-Level Overview Section ---
-    st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'> Overview </h2>", unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown("""
+        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px;">
+            <h1 style="color: #00FF00;">Key Insights</h1>
+        </div>
+    """, unsafe_allow_html=True)
 
     total_mentions = len(df_combined)
     mentions_by_source = df_combined['source'].value_counts()
@@ -32,10 +34,13 @@ def display_dashboard(df_combined):
     with col2:
         st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
 
-    # --- Raw Data and Details Section (now in a prominent table) ---
-    st.markdown("---")
-    st.markdown("<h2 style='text-align: center;'>📄 All Mentions Details</h2>", unsafe_allow_html=True)
-    st.markdown("---")
+    # --- All Mentions Details Section ---
+    st.markdown("""
+        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px; margin-top: 30px;">
+            <h2 style="color: #00FF00;">All Mentions Details</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
     # Display all mentions in an interactive table
     st.dataframe(df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
         'daily_update': 'Date',
@@ -46,7 +51,11 @@ def display_dashboard(df_combined):
     }), height=400)
 
     # --- Visualizations Section ---
-    st.markdown("---")
+    st.markdown("""
+        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px; margin-top: 30px;">
+            <h2 style="color: #00FF00;">Data Visualizations</h2>
+        </div>
+    """, unsafe_allow_html=True)
 
     # Use a dark background style for a more visually striking look
     plt.style.use('dark_background')
@@ -124,4 +133,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
