@@ -17,15 +17,17 @@ def get_clean_url(google_url):
     except (KeyError, IndexError):
         return google_url
 
-def categorize_source(source_name):
-    """Categorizes a source based on its name."""
-    source_name_lower = source_name.lower()
-    if 'yahoo' in source_name_lower or 'reuters' in source_name_lower or 'afp' in source_name_lower:
+def categorize_source(url):
+    """Categorizes a source based on its URL."""
+    url_lower = url.lower()
+    if 'yahoo.com' in url_lower or 'reuters.com' in url_lower or 'afp.com' in url_lower:
         return 'News Outlet'
-    elif 'pressreader' in source_name_lower:
+    elif 'pressreader.com' in url_lower:
         return 'Digital Paper/Magazine'
-    elif 'twitter' in source_name_lower or 'facebook' in source_name_lower:
+    elif 'twitter.com' in url_lower or 'facebook.com' in url_lower:
         return 'Social Media'
+    elif 'blogspot.com' in url_lower or 'wordpress.com' in url_lower:
+        return 'Blog'
     # Add more categories as needed
     else:
         return 'Other'
@@ -44,7 +46,7 @@ def display_dashboard(df_combined):
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
 
     # Add the new source category column
-    df_combined['source_category'] = df_combined['source'].apply(categorize_source)
+    df_combined['source_category'] = df_combined['url'].apply(categorize_source)
 
     # --- High-Level Overview Section ---
     st.markdown("---")
