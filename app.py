@@ -7,16 +7,6 @@ import io
 # URL for the default dataset (replace with your actual GitHub raw link)
 DEFAULT_DATA_URL = "https://raw.githubusercontent.com/hanna-tes/CfA-mentions-tracking/refs/heads/main/news_items%20(1).csv"
 
-def get_clean_url(google_url):
-    """Extracts the clean URL from a Google redirect link."""
-    try:
-        parsed_url = urlparse(google_url)
-        query_params = parse_qs(parsed_url.query)
-        # The clean URL is typically in the 'url' query parameter
-        return query_params['url'][0]
-    except (KeyError, IndexError):
-        return google_url # Return original URL if extraction fails
-
 def display_dashboard(df_combined):
     """
     Displays the dashboard with a more visually appealing design.
@@ -29,6 +19,9 @@ def display_dashboard(df_combined):
 
     # Convert 'daily_update' to datetime format
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
+
+    # Add the new source category column
+    df_combined['source_category'] = df_combined['source'].apply(categorize_source)
 
     # --- High-Level Overview Section ---
     st.markdown("---")
@@ -54,7 +47,7 @@ def display_dashboard(df_combined):
             <h2 style="color: #5D8AA8;">All Mentions Details</h2>
         </div>
     """, unsafe_allow_html=True)
-
+    
     # Display all mentions in an interactive table with clickable links
     st.data_editor(
         df_combined[['daily_update', 'source', 'title', 'snippet', 'url']].rename(columns={
@@ -81,6 +74,20 @@ def display_dashboard(df_combined):
 
     plt.style.use('dark_background')
 
+    # New chart: Mentions by Source Category
+    mentions_by_category = df_combined['source_category'].value_counts()
+    st.subheader("Mentions by Source Category")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    mentions_by_category.plot(kind='bar', color=plt.cm.viridis.colors, ax=ax)
+    ax.set_title('Mentions by Source Category', fontsize=16, color='white')
+    ax.set_xlabel('Category', fontsize=12, color='white')
+    ax.set_ylabel('Number of Mentions', fontsize=12, color='white')
+    ax.tick_params(colors='white')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    # Existing plots
     st.subheader("Mentions by Source")
     fig, ax = plt.subplots(figsize=(10, 6))
     mentions_by_source.plot(kind='bar', color=plt.cm.Paired.colors, ax=ax)
@@ -104,7 +111,6 @@ def display_dashboard(df_combined):
     plt.tight_layout()
     st.pyplot(fig)
 
-
 def main():
     st.set_page_config(layout="wide", page_title="Code for Africa's Work Mentions Tracking Dashboard")
     st.title("Code for Africa's Work Mentions Tracking Dashboard")
@@ -113,7 +119,6 @@ def main():
         "Choose your data source:",
         ("Use Default Data", "Upload Your Own Dataset")
     )
-
     st.sidebar.markdown("---")
 
     if data_source_option == "Use Default Data":
