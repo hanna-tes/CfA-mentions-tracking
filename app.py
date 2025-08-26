@@ -17,9 +17,10 @@ def display_dashboard(df_combined):
     df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'])
 
     # --- High-Level Overview Section ---
+    st.markdown("---")
     st.markdown("""
-        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px;">
-            <h1 style="color: #00FF00;">Key Insights</h1>
+        <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px;">
+            <h1 style="color: #5D8AA8;">Dashboard Overview</h1>
         </div>
     """, unsafe_allow_html=True)
 
@@ -30,14 +31,14 @@ def display_dashboard(df_combined):
     # Use columns with Streamlit's built-in alert boxes for a better look
     col1, col2 = st.columns(2)
     with col1:
-        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded!")
+        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded! 🎉")
     with col2:
-        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
+        st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source. 🏆")
 
     # --- All Mentions Details Section ---
     st.markdown("""
-        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px; margin-top: 30px;">
-            <h2 style="color: #00FF00;">All Mentions Details</h2>
+        <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px; margin-top: 30px;">
+            <h2 style="color: #5D8AA8;">All Mentions Details</h2>
         </div>
     """, unsafe_allow_html=True)
 
@@ -51,9 +52,10 @@ def display_dashboard(df_combined):
     }), height=400)
 
     # --- Visualizations Section ---
+    st.markdown("---")
     st.markdown("""
-        <div style="text-align: center; border-bottom: 2px solid #00FF00; padding-bottom: 10px; margin-top: 30px;">
-            <h2 style="color: #00FF00;">Data Visualizations</h2>
+        <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px; margin-top: 30px;">
+            <h2 style="color: #5D8AA8;">Data Visualizations</h2>
         </div>
     """, unsafe_allow_html=True)
 
@@ -76,7 +78,7 @@ def display_dashboard(df_combined):
     st.subheader("Mentions Over Time")
     mentions_over_time = df_combined.groupby('daily_update').size()
     fig, ax = plt.subplots(figsize=(10, 6))
-    mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#00FF00', ax=ax) # Using a bright color for contrast
+    mentions_over_time.plot(kind='line', marker='o', linestyle='-', color='#5D8AA8', ax=ax) # Using a smooth blue for contrast
     ax.set_title('Mentions Over Time', fontsize=16, color='white')
     ax.set_xlabel('Date', fontsize=12, color='white')
     ax.set_ylabel('Number of Mentions', fontsize=12, color='white')
