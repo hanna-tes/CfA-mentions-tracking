@@ -90,7 +90,7 @@ def display_dashboard(df_combined):
 
 def main():
     st.set_page_config(layout="wide")
-    st.title("Code for Africa Mentions Dashboard")
+    st.title("Code for Africa's Work Mentions Tracking Dashboard")
 
     # --- Data Source Selection ---
     st.sidebar.header("Data Source")
