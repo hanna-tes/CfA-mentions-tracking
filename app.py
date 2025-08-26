@@ -20,7 +20,10 @@ def get_clean_url(google_url):
 def categorize_source(url):
     """Categorizes a source based on its URL."""
     url_lower = url.lower()
-    if 'yahoo.com' in url_lower or 'reuters.com' in url_lower or 'afp.com' in url_lower:
+    if ('yahoo.com' in url_lower or 'reuters.com' in url_lower or 
+        'afp.com' in url_lower or 'france24.com' in url_lower or
+        'laviesenegalaise.com' in url_lower or 'iol.co.za' in url_lower or
+        'tuko.co.ke' in url_lower or 'bizcommunity.com' in url_lower):
         return 'News Outlet'
     elif 'pressreader.com' in url_lower:
         return 'Digital Paper/Magazine'
