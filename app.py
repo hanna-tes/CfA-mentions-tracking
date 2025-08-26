@@ -1,18 +1,21 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from urllib.parse import urlparse, parse_qs
 import io
+import gspread
+from urllib.parse import urlparse, parse_qs
 
-# URL for the default dataset (replace with your actual GitHub raw link)
-DEFAULT_DATA_URL = "https://raw.githubusercontent.com/hanna-tes/CfA-mentions-tracking/refs/heads/main/news_items%20(1).csv"
+# --- Configuration for Google Sheets ---
+# Name of your Google Sheet
+SHEET_NAME = "My_Mentions_Data"  
+# Name of the worksheet you want to read from
+WORKSHEET_NAME = "Sheet1"  
 
 def get_clean_url(google_url):
     """Extracts the clean URL from a Google redirect link."""
     try:
         parsed_url = urlparse(google_url)
         query_params = parse_qs(parsed_url.query)
-        # The clean URL is typically in the 'url' query parameter
         return query_params['url'][0]
     except (KeyError, IndexError):
         return google_url
@@ -34,6 +37,21 @@ def categorize_source(url):
     # Add more categories as needed
     else:
         return 'Other'
+
+# Function to load data directly from Google Sheets
+@st.cache_data(ttl=600)  # Cache data for 10 minutes to avoid hitting API limits
+def load_data_from_google_sheet():
+    """Reads data from a Google Sheet using a service account credentials from st.secrets."""
+    try:
+        creds_json = st.secrets["gcp_service_account"]
+        client = gspread.service_account_from_dict(creds_json)
+        sheet = client.open(SHEET_NAME).worksheet(WORKSHEET_NAME)
+        data = sheet.get_all_records()
+        df = pd.DataFrame(data)
+        return df
+    except Exception as e:
+        st.error(f"Error connecting to Google Sheet: {e}. Please check your credentials and sheet name.")
+        return None
 
 def display_dashboard(df_combined):
     """
@@ -70,6 +88,7 @@ def display_dashboard(df_combined):
         st.success(f"### Top Source\n\n**{top_source}** is the top-mentioning source.")
 
     # --- All Mentions Details Section (now in a prominent table) ---
+    st.markdown("---")
     st.markdown("""
         <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px; margin-top: 30px;">
             <h2 style="color: #5D8AA8;">All Mentions Details</h2>
@@ -94,6 +113,7 @@ def display_dashboard(df_combined):
 
     # --- Visualizations Section ---
     st.markdown("---")
+
     plt.style.use('dark_background')
 
     # New chart: Mentions by Source Category
@@ -140,21 +160,11 @@ def main():
     st.sidebar.header("Data Source")
     data_source_option = st.sidebar.radio(
         "Choose your data source:",
-        ("Use Default Data", "Upload Your Own Dataset")
+        ("Upload Your Own Dataset", "Link to Google Sheet")
     )
     st.sidebar.markdown("---")
 
-    if data_source_option == "Use Default Data":
-        st.sidebar.info("Using a default dataset from a GitHub repository.")
-        st.sidebar.markdown(f"[Raw Data Link]({DEFAULT_DATA_URL})")
-        try:
-            df = pd.read_csv(DEFAULT_DATA_URL)
-            display_dashboard(df)
-        except Exception as e:
-            st.error(f"Error loading default data: {e}. Please ensure the URL is correct and the file is accessible.")
-            st.warning("You may need to upload your own dataset as an alternative.")
-
-    elif data_source_option == "Upload Your Own Dataset":
+    if data_source_option == "Upload Your Own Dataset":
         st.sidebar.info("Upload one or more CSV files from your local machine.")
         uploaded_files = st.file_uploader(
             "Choose one or more CSV files",
@@ -175,6 +185,14 @@ def main():
             display_dashboard(df_combined)
         else:
             st.info("Please upload CSV files to view the dashboard.")
+
+    elif data_source_option == "Link to Google Sheet":
+        st.sidebar.info("Loading data directly from your Google Sheet.")
+        df = load_data_from_google_sheet()
+        if df is not None:
+            display_dashboard(df)
+        else:
+            st.warning("Data could not be loaded from Google Sheet. Please check the credentials and sheet info.")
 
 if __name__ == "__main__":
     main()
