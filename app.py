@@ -94,12 +94,6 @@ def display_dashboard(df_combined):
 
     # --- Visualizations Section ---
     st.markdown("---")
-    st.markdown("""
-        <div style="text-align: center; border-bottom: 2px solid #5D8AA8; padding-bottom: 10px; margin-top: 30px;">
-            <h2 style="color: #5D8AA8;">Data Visualizations</h2>
-        </div>
-    """, unsafe_allow_html=True)
-
     plt.style.use('dark_background')
 
     # New chart: Mentions by Source Category
