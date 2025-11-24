@@ -58,8 +58,8 @@ def display_dashboard(df_combined):
     # Clean URLs
     df_combined['url'] = df_combined['url'].apply(get_clean_url)
 
-    # Ensure 'daily_update' is datetime and drop invalid rows
-    df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'], errors='coerce')
+    # Ensure 'daily_update' is datetime — force ISO-like parsing
+    df_combined['daily_update'] = pd.to_datetime(df_combined['daily_update'], errors='coerce', infer_datetime_format=True)
     df_combined = df_combined.dropna(subset=['daily_update'])
 
     # Add source category
@@ -101,7 +101,9 @@ def display_dashboard(df_combined):
         'url': 'URL'
     })
 
-    # Sort by date (newest first)
+    # Sort by Date (newest first) — ensure 'Date' is datetime
+    display_df['Date'] = pd.to_datetime(display_df['Date'], errors='coerce')
+    display_df = display_df.dropna(subset=['Date'])
     display_df = display_df.sort_values('Date', ascending=False).reset_index(drop=True)
 
     # Truncate snippets for readability
@@ -111,7 +113,7 @@ def display_dashboard(df_combined):
     st.data_editor(
         display_df,
         disabled=True,
-        height=500,
+        height=600,
         column_config={"URL": st.column_config.LinkColumn("URL")}
     )
 
@@ -132,12 +134,12 @@ def display_dashboard(df_combined):
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Top 10 Sources (for clarity)
-    st.subheader("Top 10 Mentioning Sources")
-    top_sources = mentions_by_source.head(10)
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Top 15 Sources (updated from 10 to 15)
+    st.subheader("Top 15 Mentioning Sources")
+    top_sources = mentions_by_source.head(15)
+    fig, ax = plt.subplots(figsize=(12, 7))
     top_sources.plot(kind='bar', color=plt.cm.Paired.colors[:len(top_sources)], ax=ax)
-    ax.set_title('Top 10 Sources by Mentions', fontsize=16, color='white')
+    ax.set_title('Top 15 Sources by Mentions', fontsize=16, color='white')
     ax.set_xlabel('Source', fontsize=12, color='white')
     ax.set_ylabel('Number of Mentions', fontsize=12, color='white')
     ax.tick_params(colors='white')
