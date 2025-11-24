@@ -73,7 +73,9 @@ def display_dashboard(df_combined):
     # --- APPLYING REQUESTED FILTERS AND SORTS ---
     
     # 1. Filter out mentions from 'pesa check'
-    df_filtered_all = df_combined[df_combined['source'].str.lower() != 'pesa check'].copy()
+    # Normalize source
+    sources_lower = df_combined['source'].astype(str).str.strip().str.lower()
+    df_filtered_all = df_combined[~sources_lower.isin(['pesacheck', 'PesaCheck'])].copy()
 
     # Sort the DataFrame by 'daily_update' in descending order to easily select the latest
     df_filtered_all.sort_values(by='daily_update', ascending=False, inplace=True)
@@ -118,7 +120,7 @@ def display_dashboard(df_combined):
 
     col1, col2 = st.columns(2)
     with col1:
-        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded! (Excluding Pesa Check)")
+        st.info(f"### Total Mentions\n\n**{total_mentions}** mentions recorded!")
     with col2:
         st.success(f"### Top Source (Latest {latest_n})\n\n**{top_source_latest}** is the top-mentioning source in the latest set.")
 
